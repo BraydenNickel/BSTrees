@@ -1,0 +1,2 @@
+The BSTree assignment is 100% complete
+There is not any known deficiencies or missing functionalities

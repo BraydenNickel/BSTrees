@@ -1,4 +1,7 @@
 package com.project.classes;
+import java.util.NoSuchElementException;
+import java.util.Stack;
+
 import com.project.interfaces.BSTreeADT;
 import com.project.interfaces.Iterator;
 
@@ -142,22 +145,100 @@ public class BSTree<E extends Comparable<? super E>> implements BSTreeADT<E> {
 
         return current;
     }
-	@Override
-	public Iterator<E> inorderIterator() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public Iterator<E> inorderIterator() {
+        return new Iterator<E>() {
+            private Stack<BSTreeNode<E>> stack = new Stack<>();
+            private BSTreeNode<E> current = root;
 
-	@Override
-	public Iterator<E> preorderIterator() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+            @Override
+            public boolean hasNext() {
+                return current != null || !stack.isEmpty();
+            }
 
-	@Override
-	public Iterator<E> postorderIterator() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+            @Override
+            public E next() {
+                while (current != null) {
+                    stack.push(current);
+                    current = current.getLeft();
+                }
+
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+
+                BSTreeNode<E> node = stack.pop();
+                current = node.getRight();
+
+                return node.getData();
+            }
+        };
+    }
+
+    public Iterator<E> preorderIterator() {
+        return new Iterator<E>() {
+            private Stack<BSTreeNode<E>> stack = new Stack<>();
+
+            {
+                if (root != null) {
+                    stack.push(root);
+                }
+            }
+
+            @Override
+            public boolean hasNext() {
+                return !stack.isEmpty();
+            }
+
+            @Override
+            public E next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+
+                BSTreeNode<E> node = stack.pop();
+                if (node.getRight() != null) {
+                    stack.push(node.getRight());
+                }
+                if (node.getLeft() != null) {
+                    stack.push(node.getLeft());
+                }
+
+                return node.getData();
+            }
+        };
+    }
+
+    public Iterator<E> postorderIterator() {
+        return new Iterator<E>() {
+            private Stack<BSTreeNode<E>> stack = new Stack<>();
+            private BSTreeNode<E> current = root;
+            private BSTreeNode<E> prev = null;
+
+            @Override
+            public boolean hasNext() {
+                return current != null || !stack.isEmpty();
+            }
+
+            @Override
+            public E next() {
+                while (current != null) {
+                    stack.push(current);
+                    current = current.getLeft();
+                }
+
+                BSTreeNode<E> node = stack.peek();
+
+                if (node.getRight() == null || node.getRight() == prev) {
+                    stack.pop();
+                    prev = node;
+                    current = null; // Move to the next iteration
+                    return node.getData();
+                } else {
+                    current = node.getRight();
+                    return next(); // Recursively go to the right subtree
+                }
+            }
+        };
+    }
 
 }
